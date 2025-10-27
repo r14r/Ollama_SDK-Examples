@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "bs4>=0.0.2",
+    "detect-secrets>=1.5.0",
     "numpy>=1.24.0",
     "ollama>=0.6.0",
     "pandas>=2.0.0",
@@ -18,9 +19,14 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 100
+line-length = 200
 
 [tool.ruff]
-line-length = 100
-select = ["E", "F", "I"]
+line-length = 200
+lint.select = ["E", "F", "I"]
 fix = true
+
+[tool.bandit]
+targets = ["src"]
+severity = "HIGH"
+confidence = "HIGH"

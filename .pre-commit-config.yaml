@@ -1,10 +1,9 @@
 # .pre-commit-config.yaml
-# Modern Python project pre-commit configuration
-# Run once after cloning:  pre-commit install
-# Update hooks anytime:     pre-commit autoupdate
+# Run once:     pre-commit install
+# Update hooks: pre-commit autoupdate
 
 repos:
-  # --- Core sanity checks (YAML, trailing spaces, etc.) ---
+  # --- Core sanity checks ---
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -16,48 +15,42 @@ repos:
         args: ["--maxkb=500"]
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: detect-private-key
 
-  # --- Black: autoformatter ---
+  # --- Formatting / Linting / Types ---
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
         language_version: python3.11
 
-  # --- Ruff: linter + import sorter ---
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.4
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
+###  - repo: https://github.com/astral-sh/ruff-pre-commit
+###    rev: v0.6.4
+###    hooks:
+###      - id: ruff
+###        args: [--fix, --exit-non-zero-on-fix]
+###      - id: ruff-format
 
-  # --- Mypy: static type checker ---
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
+###  - repo: https://github.com/pre-commit/mirrors-mypy
+###    rev: v1.11.2
+###    hooks:
+###      - id: mypy
+###        additional_dependencies:
+###          - types-requests
+###          - types-PyYAML
 
-  # --- Pyupgrade: modernize syntax ---
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
-    hooks:
-      - id: pyupgrade
-        args: ["--py311-plus"]
+###  - repo: https://github.com/asottile/pyupgrade
+###    rev: v3.19.0
+###    hooks:
+###      - id: pyupgrade
+###        args: ["--py311-plus"]
 
-  # --- Sort requirements (optional) ---
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.12.0
+  # --- Spellcheck (avoids typos in code/docs) ---
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
     hooks:
-      - id: reorder-python-imports
-        args: ["--py311-plus", "--application-directories=src"]
-
-  # --- Validate commit messages (optional) ---
-  - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.19.1
-    hooks:
-      - id: gitlint
-        stages: [commit-msg]
+      - id: codespell
+        args:
+          - --ignore-words-list=htt,teh,nd
+          - --skip=*.lock,*.svg,*.min.js,*.map
+        additional_dependencies: [tomli]  # for pyproject parsing on 3.11+

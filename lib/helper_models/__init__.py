@@ -183,7 +183,7 @@ models = {
         "yarn-mistral",
         "yi",
         "yi-coder",
-        "zephyr"
+        "zephyr",
     ],
     "Text Models": [
         "alfred",
@@ -313,7 +313,7 @@ models = {
         "yarn-llama2",
         "yarn-mistral",
         "yi",
-        "zephyr"
+        "zephyr",
     ],
     "Embedding Models": [
         "all-minilm",
@@ -325,7 +325,7 @@ models = {
         "nomic-embed-text",
         "qwen3-embedding",
         "snowflake-arctic-embed",
-        "snowflake-arctic-embed2"
+        "snowflake-arctic-embed2",
     ],
     "Vision Models": [
         "bakllava",
@@ -334,7 +334,7 @@ models = {
         "llava",
         "llava-llama3",
         "llava-phi3",
-        "moondream"
+        "moondream",
     ],
     "Code Models": [
         "codebooga",
@@ -359,7 +359,7 @@ models = {
         "starcoder",
         "starcoder2",
         "wizardcoder",
-        "yi-coder"
+        "yi-coder",
     ],
     "Multimodal Models": [
         "command-a",
@@ -372,13 +372,13 @@ models = {
         "gemma3",
         "gemma3n",
         "qwen3-vl",
-        "shieldgemma"
+        "shieldgemma",
     ],
     "Tooling / Agents": [
         "firefunction-v2",
         "llama3-groq-tool-use",
         "llama3.2",
         "qwen2.5",
-        "qwen2.5vl"
-    ]
+        "qwen2.5vl",
+    ],
 }

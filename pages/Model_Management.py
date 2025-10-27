@@ -1,8 +1,9 @@
-import streamlit as st
 import time
 
-from lib.helper_ollama import helper
+import streamlit as st
 from lib.helper_models import models as popular_models
+from lib.helper_ollama import helper
+
 
 def show():
     """Display the model management demo page."""
@@ -164,7 +165,7 @@ def show_pull_models(helper):
             st.warning("Please select or enter a model name.")
 
     # Pull status
-    if 'pulling_model' in st.session_state and st.session_state.pulling_model:
+    if "pulling_model" in st.session_state and st.session_state.pulling_model:
         st.info(f"Currently pulling: {st.session_state.pulling_model}")
 
 
@@ -343,13 +344,13 @@ def pull_model_with_progress(helper, model_name: str, show_progress: bool):
             downloaded = 0
 
             for progress in helper.pull_model(model_name, stream=True):
-                status = progress.get('status', '')
+                status = progress.get("status", "")
 
-                if 'total' in progress:
-                    total_size = progress['total']
+                if "total" in progress:
+                    total_size = progress["total"]
 
-                if 'completed' in progress and total_size:
-                    downloaded = progress['completed']
+                if "completed" in progress and total_size:
+                    downloaded = progress["completed"]
                     percentage = downloaded / total_size
                     progress_bar.progress(percentage)
                     status_text.text(f"{status} ({percentage:.1%})")

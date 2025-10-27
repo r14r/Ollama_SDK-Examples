@@ -1,33 +1,42 @@
-import os
 import base64
-
 import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Callable, Generator
-from pydantic import BaseModel
-
+import os
 import threading
+from collections.abc import Callable
+from collections.abc import Generator
+from pathlib import Path
+from typing import Any
+from typing import cast
+from typing import Protocol
 
-from ollama import (
-    Client,
-    AsyncClient,
-    ChatResponse,
-    ListResponse,
-    ShowResponse,
-    ProcessResponse,
-    list,
-    chat,
-    generate,
-    embed,
-    show,
-    pull,
-    ps,
-    create,
-)
+from ollama import AsyncClient
+from ollama import chat
+from ollama import ChatResponse
+from ollama import Client
+from ollama import create
+from ollama import embed
+from ollama import generate
+from ollama import List
+from ollama import ListResponse
+from ollama import ProcessResponse
+from ollama import ps
+from ollama import pull
+from ollama import show
+from ollama import ShowResponse
+from pydantic import BaseModel
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
 DEFAULT_MODEL = "phi4-mini"
+
+
+# Protocol for Pydantic model classes to help the type checker
+class _PydanticModelClass(Protocol):
+    @classmethod
+    def model_json_schema(cls) -> dict[str, Any]: ...
+
+    @classmethod
+    def model_validate_json(cls, data: str) -> Any: ...
 
 
 class OllamaHelper:
@@ -35,8 +44,9 @@ class OllamaHelper:
 
     _instance_lock = threading.Lock()
     _instance = None
+    _initial_base_url: str | None = None
 
-    def __new__(cls, base_url: Optional[str] = None):
+    def __new__(cls, base_url: str | None = None):
         # Double-checked locking to ensure singleton
         if cls._instance is None:
             with cls._instance_lock:
@@ -47,7 +57,7 @@ class OllamaHelper:
 
         return cls._instance
 
-    def __init__(self, base_url: Optional[str] = None):
+    def __init__(self, base_url: str | None = None):
         # Avoid re-initialization on subsequent constructions
         if getattr(self, "_initialized", False):
             return
@@ -61,7 +71,7 @@ class OllamaHelper:
         self._initialized = True
 
     @classmethod
-    def get_instance(cls, base_url: Optional[str] = None) -> "OllamaHelper":
+    def get_instance(cls, base_url: str | None = None) -> "OllamaHelper":
         """
         Get the singleton instance. If the singleton doesn't exist, it will be created.
         The base_url argument is only applied on the first creation call.
@@ -82,25 +92,16 @@ class OllamaHelper:
         response = await self.client_async.chat(model, messages=messages, **kwargs)
         return response["message"]["content"]
 
-    def chat_with_messages(
-        self, model: str, messages: List[Dict[str, str]], **kwargs
-    ) -> ChatResponse:
+    def chat_with_messages(self, model: str, messages: List[dict[str, str]], **kwargs) -> ChatResponse:
         return chat(model, messages=messages, **kwargs)
 
-    async def async_chat_with_messages(
-        self, model: str, messages: List[Dict[str, str]], **kwargs
-    ) -> ChatResponse:
+    async def async_chat_with_messages(self, model: str, messages: List[dict[str, str]], **kwargs) -> ChatResponse:
         return await self.client_async.chat(model, messages=messages, **kwargs)
 
-    def chat_stream(
-        self, model: str, messages: List[Dict[str, str]], **kwargs
-    ) -> Generator[Dict[str, Any], None, None]:
-        for part in chat(model, messages=messages, stream=True, **kwargs):
-            yield part
+    def chat_stream(self, model: str, messages: List[dict[str, str]], **kwargs) -> Generator[dict[str, Any], None, None]:
+        yield from chat(model, messages=messages, stream=True, **kwargs)
 
-    def chat_with_history(
-        self, model: str, messages: List[Dict[str, str]], **kwargs
-    ) -> tuple[str, List[Dict[str, str]]]:
+    def chat_with_history(self, model: str, messages: List[dict[str, str]], **kwargs) -> tuple[str, List[dict[str, str]]]:
         response = chat(model, messages=messages, **kwargs)
         messages.append(response["message"])
         return response["message"]["content"], messages
@@ -109,9 +110,7 @@ class OllamaHelper:
     # MULTIMODAL OPERATIONS
     # ============================================================================
 
-    def multimodal_chat(
-        self, model: str, message: str, image_path: str, **kwargs
-    ) -> str:
+    def multimodal_chat(self, model: str, message: str, image_path: str, **kwargs) -> str:
         messages = [
             {
                 "role": "user",
@@ -122,9 +121,7 @@ class OllamaHelper:
         response = chat(model, messages=messages, **kwargs)
         return response["message"]["content"]
 
-    def multimodal_chat_base64(
-        self, model: str, message: str, image_base64: str, **kwargs
-    ) -> str:
+    def multimodal_chat_base64(self, model: str, message: str, image_base64: str, **kwargs) -> str:
         messages = [
             {
                 "role": "user",
@@ -150,11 +147,8 @@ class OllamaHelper:
         response = await self.client_async.generate(model, prompt, **kwargs)
         return response["response"]
 
-    def generate_stream(
-        self, model: str, prompt: str, **kwargs
-    ) -> Generator[Dict[str, Any], None, None]:
-        for part in generate(model, prompt, stream=True, **kwargs):
-            yield part
+    def generate_stream(self, model: str, prompt: str, **kwargs) -> Generator[dict[str, Any], None, None]:
+        yield from generate(model, prompt, stream=True, **kwargs)
 
     # ============================================================================
     # EMBEDDINGS
@@ -164,9 +158,7 @@ class OllamaHelper:
         response = embed(model=model, input=input_text, **kwargs)
         return response["embeddings"]
 
-    def get_embeddings_batch(
-        self, model: str, input_texts: List[str], **kwargs
-    ) -> List[List[float]]:
+    def get_embeddings_batch(self, model: str, input_texts: List[str], **kwargs) -> List[List[float]]:
         response = embed(model=model, input=input_texts, **kwargs)
         return response["embeddings"]
 
@@ -187,14 +179,14 @@ class OllamaHelper:
 
             tags = getattr(details, "tags", None)
             if tags:
-                if isinstance(tags, (list, tuple)):
+                if isinstance(tags, (List, tuple)):
                     gset.update(str(t).lower() for t in tags)
                 else:
                     gset.add(str(tags).lower())
 
         caps = getattr(m, "capabilities", None)
         if caps:
-            if isinstance(caps, (list, tuple)):
+            if isinstance(caps, (List, tuple)):
                 gset.update(str(c).lower() for c in caps)
             else:
                 gset.add(str(caps).lower())
@@ -206,16 +198,14 @@ class OllamaHelper:
 
         return gset
 
-    def models_list(self, with_details: bool = False, groups: Optional[List[str]] = None) -> Union[ListResponse, List[str]]:
-        models = list().models
+    def models_List(self, with_details: bool = False, groups: List[str] | None = None) -> ListResponse | List[str]:
+        models = List().models
 
         for m in models:
             m._group_set = self.model_groups(m)
 
         if groups:
             wanted = {g.lower() for g in groups}
-
-
 
             result = [m for m in models if wanted & self.model_groups(m)]
         else:
@@ -231,9 +221,7 @@ class OllamaHelper:
     def model_get_info(self, model: str) -> ShowResponse:
         return show(model)
 
-    def model_pull(
-        self, model: str, stream: bool = False
-    ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
+    def model_pull(self, model: str, stream: bool = False) -> dict[str, Any] | Generator[dict[str, Any], None, None]:
         return pull(model, stream=stream)
 
     def model_pull_with_progress(self, model: str) -> None:
@@ -244,8 +232,8 @@ class OllamaHelper:
             for progress in pull(model, stream=True):
                 print(progress.get("status", ""))
             return
-
-        current_digest, bars = "", {}
+        current_digest: str = ""
+        bars: dict[str, Any] = {}
         for progress in pull(model, stream=True):
             digest = progress.get("digest", "")
             if digest != current_digest and current_digest in bars:
@@ -268,19 +256,18 @@ class OllamaHelper:
 
             current_digest = digest
 
-    def list_running_models(self) -> ProcessResponse:
+    def List_running_models(self) -> ProcessResponse:
         response = ps()
         return response.models
-
 
     def model_create(
         self,
         name: str,
         from_model: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         stream: bool = False,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         params = {"model": name, "from_": from_model, "stream": stream, **kwargs}
         if system_prompt:
             params["system"] = system_prompt
@@ -293,11 +280,11 @@ class OllamaHelper:
     def chat_with_tools(
         self,
         model: str,
-        messages: List[Dict[str, str]],
-        tools: List[Union[Callable, Dict]],
-        available_functions: Dict[str, Callable],
+        messages: List[dict[str, str]],
+        tools: List[Callable | dict],
+        available_functions: dict[str, Callable],
         **kwargs,
-    ) -> tuple[ChatResponse, List[Dict[str, str]]]:
+    ) -> tuple[ChatResponse, List[dict[str, str]]]:
         response: ChatResponse = chat(model, messages=messages, tools=tools, **kwargs)
 
         if response.message.tool_calls:
@@ -321,14 +308,12 @@ class OllamaHelper:
     async def async_chat_with_tools(
         self,
         model: str,
-        messages: List[Dict[str, str]],
-        tools: List[Union[Callable, Dict]],
-        available_functions: Dict[str, Callable],
+        messages: List[dict[str, str]],
+        tools: List[Callable | dict],
+        available_functions: dict[str, Callable],
         **kwargs,
-    ) -> tuple[ChatResponse, List[Dict[str, str]]]:
-        response: ChatResponse = await self.client_async.chat(
-            model, messages=messages, tools=tools, **kwargs
-        )
+    ) -> tuple[ChatResponse, List[dict[str, str]]]:
+        response: ChatResponse = await self.client_async.chat(model, messages=messages, tools=tools, **kwargs)
 
         if response.message.tool_calls:
             for tool in response.message.tool_calls:
@@ -348,9 +333,7 @@ class OllamaHelper:
 
         return response, messages
 
-    def create_tool_definition(
-        self, name: str, description: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def create_tool_definition(self, name: str, description: str, parameters: dict[str, Any]) -> dict[str, Any]:
         return {
             "type": "function",
             "function": {
@@ -367,15 +350,25 @@ class OllamaHelper:
     def chat_with_structured_output(
         self,
         model: str,
-        messages: List[Dict[str, str]],
-        schema: Union[BaseModel, Dict[str, Any]],
+        messages: List[dict[str, str]],
+        schema: type[BaseModel] | BaseModel | dict[str, Any],
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
+        # Handle BaseModel class, BaseModel instance, or raw schema dict
         if isinstance(schema, type) and issubclass(schema, BaseModel):
-            format_schema = schema.model_json_schema()
+            # schema is a Pydantic model class
+            model_cls = cast(_PydanticModelClass, schema)
+            format_schema = model_cls.model_json_schema()
             response = chat(model, messages=messages, format=format_schema, **kwargs)
-            return schema.model_validate_json(response.message.content)
+            return model_cls.model_validate_json(response.message.content)
+        elif isinstance(schema, BaseModel):
+            # schema is an instance of a Pydantic model
+            model_cls = cast(_PydanticModelClass, type(schema))
+            format_schema = model_cls.model_json_schema()
+            response = chat(model, messages=messages, format=format_schema, **kwargs)
+            return model_cls.model_validate_json(response.message.content)
         else:
+            # assume schema is a raw JSON schema (dict)
             response = chat(model, messages=messages, format=schema, **kwargs)
             return json.loads(response.message.content)
 
@@ -383,13 +376,19 @@ class OllamaHelper:
         self,
         model: str,
         prompt: str,
-        schema: Union[BaseModel, Dict[str, Any]],
+        schema: type[BaseModel] | BaseModel | dict[str, Any],
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         if isinstance(schema, type) and issubclass(schema, BaseModel):
-            format_schema = schema.model_json_schema()
+            model_cls = cast(_PydanticModelClass, schema)
+            format_schema = model_cls.model_json_schema()
             response = generate(model, prompt, format=format_schema, **kwargs)
-            return schema.model_validate_json(response["response"])
+            return model_cls.model_validate_json(response["response"])
+        elif isinstance(schema, BaseModel):
+            model_cls = cast(_PydanticModelClass, type(schema))
+            format_schema = model_cls.model_json_schema()
+            response = generate(model, prompt, format=format_schema, **kwargs)
+            return model_cls.model_validate_json(response["response"])
         else:
             response = generate(model, prompt, format=schema, **kwargs)
             return json.loads(response["response"])
@@ -398,8 +397,8 @@ class OllamaHelper:
     # UTILITY FUNCTIONS
     # ============================================================================
 
-    def print_model_list(self) -> None:
-        response = self.models_list()
+    def print_model_List(self) -> None:
+        response = self.models_List()
         # If with_details was used, response may be a ListResponse object
         if hasattr(response, "models"):
             for model in response.models:
@@ -428,7 +427,7 @@ class OllamaHelper:
         print(f"Capabilities:  {response.capabilities}")
 
     def print_running_models(self) -> None:
-        response = self.list_running_models()
+        response = self.List_running_models()
         for model in response.models:
             print(f"Model: {model.model}")
             print(f"  Digest: {model.digest}")
@@ -439,9 +438,7 @@ class OllamaHelper:
             print(f"  Context length: {model.context_length}")
             print()
 
-    def stream_chat_to_console(
-        self, model: str, messages: List[Dict[str, str]], **kwargs
-    ) -> str:
+    def stream_chat_to_console(self, model: str, messages: List[dict[str, str]], **kwargs) -> str:
         content = ""
         for part in self.chat_stream(model, messages, **kwargs):
             part_content = part["message"]["content"]
@@ -457,5 +454,6 @@ class OllamaHelper:
         except Exception as e:
             print(f"Failed to load model {model}: {e}")
             return False
+
 
 helper = OllamaHelper()

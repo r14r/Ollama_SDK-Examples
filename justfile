@@ -7,13 +7,12 @@ setup:
 	pip install uv
 
 install-requirements:
-	uv pip install -r requirements.txt 
+	uv pip install -r requirements.txt
 
 install-pyproject:
 	uv pip install -r pyproject.toml
-	
+
 serve:
 	streamlit run app.py
 
 run: serve
-

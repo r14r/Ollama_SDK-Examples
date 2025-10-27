@@ -7,11 +7,10 @@ containing `popular_models`.
 
 import json
 import re
+from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-from typing import Dict, List, Set
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
 #  Heuristic keyword groups
@@ -28,7 +27,8 @@ MULTIMODAL_KWS = {"vl", "mm", "multimodal"}
 #  Fetch model list from Ollama
 # ---------------------------------------------------------------------------
 
-def fetch_ollama_models(timeout: int = 15) -> Set[str]:
+
+def fetch_ollama_models(timeout: int = 15) -> set[str]:
     """
     Scrape model names from https://ollama.com/search
     Returns a set of lowercase model names like {"llama3.2:3b", "gemma3:9b"}.
@@ -55,14 +55,22 @@ def fetch_ollama_models(timeout: int = 15) -> Set[str]:
         print(f"[WARN] Could not fetch live model list: {e}")
         # fallback list
         return {
-            "llama3.2", "llama3.2:3b", "llama3.1:8b",
-            "mistral:7b", "mixtral:8x7b", "gemma3:2b",
-            "llava:7b", "nomic-embed-text", "codellama:7b-code",
+            "llama3.2",
+            "llama3.2:3b",
+            "llama3.1:8b",
+            "mistral:7b",
+            "mixtral:8x7b",
+            "gemma3:2b",
+            "llava:7b",
+            "nomic-embed-text",
+            "codellama:7b-code",
         }
+
 
 # ---------------------------------------------------------------------------
 #  Categorization
 # ---------------------------------------------------------------------------
+
 
 def categorize_model(name: str) -> str:
     n = name.lower()
@@ -80,17 +88,19 @@ def categorize_model(name: str) -> str:
         return "Multimodal Models"
     return "Text Models"
 
+
 # ---------------------------------------------------------------------------
 #  Build grouped dictionary
 # ---------------------------------------------------------------------------
 
-def build_popular_models() -> Dict[str, List[str]]:
+
+def build_popular_models() -> dict[str, list[str]]:
     models = fetch_ollama_models()
-    grouped: Dict[str, List[str]] = {}
+    grouped: dict[str, list[str]] = {}
 
     # Add the "All" group containing all models
     grouped["All"] = sorted(set(models))
-    
+
     for m in sorted(models):
         cat = categorize_model(m)
         grouped.setdefault(cat, []).append(m)
@@ -99,15 +109,15 @@ def build_popular_models() -> Dict[str, List[str]]:
     for k in grouped:
         grouped[k] = sorted(set(grouped[k]))
 
-
-
     return grouped
+
 
 # ---------------------------------------------------------------------------
 #  Write models.py to parent/lib/
 # ---------------------------------------------------------------------------
 
-def write_python_module(data: Dict[str, List[str]]):
+
+def write_python_module(data: dict[str, list[str]]):
     """
     Write the grouped model data as a valid Python dictionary to
     <parent_of_this_script>/lib/models.py
@@ -124,6 +134,7 @@ def write_python_module(data: Dict[str, List[str]]):
     total_models = sum(len(v) for k, v in data.items() if k != "All")
     print(f"[OK] Wrote {target_path} with {total_models} categorized models and {len(data['All'])} total in 'All'.")
 
+
 # ---------------------------------------------------------------------------
 #  Run standalone
 # ---------------------------------------------------------------------------
@@ -131,5 +142,3 @@ def write_python_module(data: Dict[str, List[str]]):
 if __name__ == "__main__":
     grouped = build_popular_models()
     write_python_module(grouped)
-
- 

@@ -1,5 +1,4 @@
 import streamlit as st
-
 from lib.helper_ollama import helper
 
 
@@ -49,6 +48,7 @@ def add_select_models():
         help="Choose a model that supports tool calling",
     )
 
+
 def add_select_models_tooling():
     return st.selectbox(
         "Select Model",
@@ -56,14 +56,16 @@ def add_select_models_tooling():
         help="Choose a model that supports tool calling",
     )
 
+
 def add_select_models_vision():
     vision_models = ["gemma3", "llama3.2-vision", "llava", "bakllava"]
 
     return st.selectbox(
-            "Select Vision Model",
-            options=vision_models,
-            help="Choose a model that supports vision/multimodal input"
-        )
+        "Select Vision Model",
+        options=vision_models,
+        help="Choose a model that supports vision/multimodal input",
+    )
+
 
 def add_select_models_embedding():
     """Add a select box for choosing an embedding model."""

@@ -1,8 +1,7 @@
-import streamlit as st
 import sys
-
 from pathlib import Path
 
+import streamlit as st
 from lib.helper_ollama import helper
 
 lib_path = Path(__file__).parent / "lib"
@@ -48,9 +47,7 @@ def main():
         "⚡ Streaming Demo": "streaming",
     }
 
-    selected_page = st.sidebar.selectbox(
-        "Select a page:", options=list(pages.keys()), index=0
-    )
+    selected_page = st.sidebar.selectbox("Select a page:", options=list(pages.keys()), index=0)
 
     page_key = pages[selected_page]
 
@@ -77,10 +74,7 @@ def main():
     # Sidebar info
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📖 About")
-    st.sidebar.markdown(
-        "This app demonstrates all features of the Ollama Python SDK "
-        "using the OllamaHelper class extracted from the examples."
-    )
+    st.sidebar.markdown("This app demonstrates all features of the Ollama Python SDK " "using the OllamaHelper class extracted from the examples.")
 
     # Quick model status
     with st.sidebar.expander("🔍 Quick Model Check"):
@@ -103,31 +97,37 @@ def show_home_page():
     st.title("🤖 Ollama Python SDK Demo")
     st.markdown("### Welcome to the comprehensive Ollama SDK demonstration!")
 
-    st.markdown("""
+    st.markdown(
+        """
     This Streamlit application showcases all the functionality available in the Ollama Python SDK
     through our custom `OllamaHelper` class. Each page demonstrates different capabilities:
-    """)
+    """
+    )
 
     # Feature overview
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("""
+        st.markdown(
+            """
         #### 🔥 Core Features
         - **💬 Chat Operations** - Basic and advanced chat functionality
         - **📝 Text Generation** - Simple and streaming text generation
         - **🖼️ Multimodal Chat** - Chat with images and visual content
         - **🔗 Embeddings** - Text embeddings for similarity and search
-        """)
+        """
+        )
 
     with col2:
-        st.markdown("""
+        st.markdown(
+            """
         #### ⚙️ Advanced Features
         - **⚙️ Model Management** - List, pull, and manage models
         - **🛠️ Tool Calling** - Function calling with AI models
         - **📊 Structured Outputs** - JSON schema and Pydantic models
         - **⚡ Streaming** - Real-time streaming responses
-        """)
+        """
+        )
 
     st.markdown("---")
 
@@ -148,9 +148,7 @@ def show_home_page():
         if st.button("🧪 Test Model", type="primary"):
             with st.spinner(f"Testing {model}..."):
                 try:
-                    response = st.session_state.helper.simple_chat(
-                        model, "Say hello and tell me you're working!"
-                    )
+                    response = st.session_state.helper.simple_chat(model, "Say hello and tell me you're working!")
                     st.success("✅ Model is working!")
                     st.info(f"**Response:** {response}")
                 except Exception as e:
@@ -177,9 +175,7 @@ def show_home_page():
         st.metric("📊 Demo Pages", "8", help="Total number of feature demo pages")
 
     with col2:
-        st.metric(
-            "🔧 Helper Methods", "30+", help="Methods available in OllamaHelper class"
-        )
+        st.metric("🔧 Helper Methods", "30+", help="Methods available in OllamaHelper class")
 
     with col3:
         st.metric("📚 Examples", "25+", help="Based on official Ollama examples")
@@ -208,8 +204,7 @@ def show_home_page():
         st.code(
             """
 # Initialize the helper
-from ollama.helper_ollamapy import OllamaHelper
-helper = OllamaHelper()
+from lib.helper_ollama import helper
 
 # Simple chat
 response = helper.simple_chat('gemma3', 'Hello, how are you?')
