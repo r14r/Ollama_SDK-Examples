@@ -173,23 +173,70 @@ class OllamaHelper:
     # ============================================================================
     # MODEL MANAGEMENT
     # ============================================================================
-    def models_list(self, with_details: bool = False) -> ListResponse:
-        models: ListResponse = list().models
+    def model_groups(self, m):
+        gset = set()
+        details = getattr(m, "details", None)
+        if details:
+            family = getattr(details, "family", None)
+            if family:
+                gset.add(str(family).lower())
+
+            fmt = getattr(details, "format", None)
+            if fmt:
+                gset.add(str(fmt).lower())
+
+            tags = getattr(details, "tags", None)
+            if tags:
+                if isinstance(tags, (list, tuple)):
+                    gset.update(str(t).lower() for t in tags)
+                else:
+                    gset.add(str(tags).lower())
+
+        caps = getattr(m, "capabilities", None)
+        if caps:
+            if isinstance(caps, (list, tuple)):
+                gset.update(str(c).lower() for c in caps)
+            else:
+                gset.add(str(caps).lower())
+
+        # fallback to model name (can contain hints like "vision", "chat", etc.)
+        name = getattr(m, "model", None)
+        if name:
+            gset.update(part for part in str(name).lower().split("-") if part)
+
+        return gset
+
+    def models_list(self, with_details: bool = False, groups: Optional[List[str]] = None) -> Union[ListResponse, List[str]]:
+        models = list().models
+
+        for m in models:
+            m._group_set = self.model_groups(m)
+
+        if groups:
+            wanted = {g.lower() for g in groups}
+
+
+
+            result = [m for m in models if wanted & self.model_groups(m)]
+        else:
+            result = models
 
         if with_details:
-            return models
+            # modify the response to only include filtered models
+
+            return result
         else:
-            return [m.model for m in models]
-        
-    def get_model_info(self, model: str) -> ShowResponse:
+            return [m.model for m in result]
+
+    def model_get_info(self, model: str) -> ShowResponse:
         return show(model)
 
-    def pull_model(
+    def model_pull(
         self, model: str, stream: bool = False
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         return pull(model, stream=stream)
 
-    def pull_model_with_progress(self, model: str) -> None:
+    def model_pull_with_progress(self, model: str) -> None:
         try:
             from tqdm import tqdm
         except ImportError:
@@ -226,7 +273,7 @@ class OllamaHelper:
         return response.models
 
 
-    def create_model(
+    def model_create(
         self,
         name: str,
         from_model: str,
@@ -369,7 +416,7 @@ class OllamaHelper:
                 print(name)
 
     def print_model_info(self, model: str) -> None:
-        response = self.get_model_info(model)
+        response = self.model_get_info(model)
         print("Model Information:")
         print(f"Modified at:   {response.modified_at}")
         print(f"Template:      {response.template}")

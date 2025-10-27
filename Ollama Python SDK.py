@@ -3,6 +3,8 @@ import sys
 
 from pathlib import Path
 
+from lib.helper_ollama import helper
+
 lib_path = Path(__file__).parent / "lib"
 if str(lib_path) not in sys.path:
     sys.path.insert(0, str(lib_path))
@@ -85,12 +87,12 @@ def main():
         if st.button("List Available Models"):
             with st.spinner("Fetching models..."):
                 try:
-                    models = st.session_state.helper.models_list(with_details=True)
-                    st.write(f"**{len(models.models)} models available:**")
-                    for model in models.models[:5]:  # Show first 5
+                    models = helper.models_list(with_details=True)
+                    st.write(f"**{len(models)} models available:**")
+                    for model in models[:5]:  # Show first 5
                         st.write(f"• {model.model}")
-                    if len(models.models) > 5:
-                        st.write(f"... and {len(models.models) - 5} more")
+                    if len(models) > 5:
+                        st.write(f"... and {len(models) - 5} more")
                 except Exception as e:
                     st.error(f"Error: {e}")
 
