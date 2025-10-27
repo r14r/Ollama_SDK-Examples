@@ -68,7 +68,7 @@ A comprehensive Streamlit application demonstrating all features of the Ollama P
 1. **Install dependencies:**
 
    ```bash
-   pip install -r requirements_streamlit.txt
+   pip install -r requirements.txt
    ```
 
 2. **Ensure Ollama is running:**
