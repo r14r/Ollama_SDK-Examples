@@ -239,7 +239,7 @@ def calculate_similarity(helper, model: str, text1: str, text2: str):
                     }
                 ))
                 fig.update_layout(height=300)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             
             # Embedding details
             with st.expander("🔍 Embedding Details"):
@@ -305,7 +305,7 @@ def perform_semantic_search(helper, model: str, query: str):
                 
                 fig = px.bar(df_results, x='Document', y='Similarity',
                            title="Document Similarity Scores")
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
         
         except Exception as e:
             st.error(f"Error performing search: {e}")
@@ -349,7 +349,7 @@ def visualize_embeddings(helper, model: str, texts: list):
                     borderwidth=1
                 )
             
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             
             # Show text index
             st.markdown("### 📋 Text Index")

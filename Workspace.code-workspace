@@ -62,7 +62,7 @@
 				"python": "${workspaceFolder}/.venv/python/bin/python",
 				"args": [
 					"run",
-					"app.py"
+					"Ollama Python SDK.py"
 				],
 				"env": {
 					"OLLAMA_HOST": "http://localhost:11434"

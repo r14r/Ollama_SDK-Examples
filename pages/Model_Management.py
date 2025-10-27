@@ -2,7 +2,7 @@ import streamlit as st
 import time
 
 from lib.helper_ollama import helper
-
+from lib.helper_models import models as popular_models
 
 def show():
     """Display the model management demo page."""
@@ -116,27 +116,6 @@ def show_pull_models(helper):
     
     st.subheader("⬇️ Pull New Models")
     st.markdown("Download models from the Ollama library.")
-    
-    # Popular models
-    popular_models = {
-        "Text Models": [
-            "llama3.1:8b", "llama3.1:70b", "llama3.2:3b", "llama3.2:1b",
-            "gemma3:2b", "gemma3:9b", "gemma3:27b",
-            "mistral:7b", "mixtral:8x7b", 
-            "codellama:7b", "codellama:13b"
-        ],
-        "Vision Models": [
-            "llava:7b", "llava:13b", "llava:34b",
-            "bakllava:7b"
-        ],
-        "Embedding Models": [
-            "nomic-embed-text", "all-minilm:l6-v2", "all-minilm:l12-v2"
-        ],
-        "Code Models": [
-            "codellama:7b-code", "codellama:13b-code",
-            "codegemma:2b", "codegemma:7b"
-        ]
-    }
     
     # Model selection
     col1, col2 = st.columns([1, 1])

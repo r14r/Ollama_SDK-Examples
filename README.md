@@ -2,6 +2,8 @@
 
 A comprehensive Streamlit application demonstrating all features of the Ollama Python SDK using the custom `OllamaHelper` class.
 
+![Ollama Python SDK Examples](doc/main.png)
+
 ## Features
 
 ### 🏠 Home Page
@@ -120,6 +122,11 @@ frontend/
 
 ### Chat Demo (`chat_demo.py`)
 
+<div style="display:flex; gap:10px;">
+  <img src="doc/chat-simple.png" alt="Chat Demo - Simple" style="width:49%;">
+  <img src="doc/chat-system-prompt.png" alt="Chat Demo - System Prompt" style="width:49%;">
+</div>
+
 - Simple one-off chat interactions
 - Conversation history management
 - Custom system prompt configuration
@@ -148,12 +155,16 @@ frontend/
 
 ### Embeddings Demo (`embeddings_demo.py`)
 
+![Embeddings](doc/embeddings.png)
+
 - Text similarity calculations
 - Document search functionality
 - PCA visualization of embeddings
 - Cosine similarity explanations
 
 ### Model Management Demo (`model_management_demo.py`)
+
+![Model Management](doc/model_management.png)
 
 - Complete model lifecycle management
 - Pull progress tracking
