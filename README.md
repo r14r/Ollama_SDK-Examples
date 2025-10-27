@@ -4,6 +4,61 @@ A comprehensive Streamlit application demonstrating all features of the Ollama P
 
 ![Ollama Python SDK Examples](doc/main.png)
 
+## Installation
+
+1. **Install dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Ensure Ollama is running:**
+
+   ```bash
+   ollama serve
+   ```
+
+3. **Pull some models (optional):**
+
+   ```bash
+   ollama pull gemma3
+   ollama pull llama3.1
+   ollama pull llama3.2
+   ```
+
+## Usage
+
+1. **Run the Streamlit app:**
+
+   ```bash
+   streamlit run Ollama_Python_SDK.py
+   ```
+
+2. **Open your browser** to the displayed URL (usually `http://localhost:8501`)
+
+3. **Navigate through the pages** using the sidebar to explore different features
+
+## Project Structure
+
+```text
+frontend/
+├── ollama_streamlit_demo.py          # Main Streamlit app
+├── requirements_streamlit.txt        # Python dependencies
+├── lib/
+│   └── ollama/
+│       └── helper_ollamapy.py       # OllamaHelper class
+└── pages/
+    ├── __init__.py
+    ├── chat_demo.py                 # Chat functionality
+    ├── generation_demo.py           # Text generation
+    ├── streaming_demo.py            # Streaming responses
+    ├── multimodal_demo.py          # Vision/image analysis
+    ├── embeddings_demo.py          # Text embeddings
+    ├── model_management_demo.py    # Model operations
+    ├── tools_demo.py               # Function calling
+    └── structured_outputs_demo.py  # Structured data generation
+```
+
 ## Features
 
 ### 🏠 Home Page
@@ -62,61 +117,6 @@ A comprehensive Streamlit application demonstrating all features of the Ollama P
 - **JSON Schema**: Custom schema-based outputs
 - **Business Data**: Invoices, employee records, project plans
 - **Creative Formats**: Stories, songs, game concepts
-
-## Installation
-
-1. **Install dependencies:**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Ensure Ollama is running:**
-
-   ```bash
-   ollama serve
-   ```
-
-3. **Pull some models (optional):**
-
-   ```bash
-   ollama pull gemma3
-   ollama pull llama3.1
-   ollama pull llama3.2
-   ```
-
-## Usage
-
-1. **Run the Streamlit app:**
-
-   ```bash
-   streamlit run ollama_streamlit_demo.py
-   ```
-
-2. **Open your browser** to the displayed URL (usually `http://localhost:8501`)
-
-3. **Navigate through the pages** using the sidebar to explore different features
-
-## Project Structure
-
-```
-frontend/
-├── ollama_streamlit_demo.py          # Main Streamlit app
-├── requirements_streamlit.txt        # Python dependencies
-├── lib/
-│   └── ollama/
-│       └── helper_ollamapy.py       # OllamaHelper class
-└── pages/
-    ├── __init__.py
-    ├── chat_demo.py                 # Chat functionality
-    ├── generation_demo.py           # Text generation
-    ├── streaming_demo.py            # Streaming responses
-    ├── multimodal_demo.py          # Vision/image analysis
-    ├── embeddings_demo.py          # Text embeddings
-    ├── model_management_demo.py    # Model operations
-    ├── tools_demo.py               # Function calling
-    └── structured_outputs_demo.py  # Structured data generation
-```
 
 ## Key Features by Page
 

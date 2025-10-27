@@ -2,27 +2,11 @@ import base64
 import json
 import os
 import threading
-from collections.abc import Callable
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from pathlib import Path
-from typing import Any
-from typing import cast
-from typing import Protocol
+from typing import Any, List, Protocol, cast
 
-from ollama import AsyncClient
-from ollama import chat
-from ollama import ChatResponse
-from ollama import Client
-from ollama import create
-from ollama import embed
-from ollama import generate
-from ollama import List
-from ollama import ListResponse
-from ollama import ProcessResponse
-from ollama import ps
-from ollama import pull
-from ollama import show
-from ollama import ShowResponse
+from ollama import AsyncClient, ChatResponse, Client, ListResponse, ProcessResponse, ShowResponse, chat, create, embed, generate, list, ps, pull, show
 from pydantic import BaseModel
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -198,8 +182,8 @@ class OllamaHelper:
 
         return gset
 
-    def models_List(self, with_details: bool = False, groups: List[str] | None = None) -> ListResponse | List[str]:
-        models = List().models
+    def models_list(self, with_details: bool = False, groups: List[str] | None = None) -> ListResponse | List[str]:
+        models = list().models
 
         for m in models:
             m._group_set = self.model_groups(m)
